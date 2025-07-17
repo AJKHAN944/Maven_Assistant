@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: flask-chatbot-app
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: DATABASE_URL
+        value: your-database-url-here
+      - key: SESSION_SECRET
+        value: your-secret-key
+      - key: MAIL_SERVER
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: 587
+      - key: MAIL_USERNAME
+        value: your-email@gmail.com
+      - key: MAIL_PASSWORD
+        value: your-email-password
+      - key: MAIL_DEFAULT_SENDER
+        value: noreply@mavenchatbot.com
