@@ -66,7 +66,7 @@ with app.app_context():
         db.session.add(default_settings)
         db.session.commit()
 
-# Run app only if executed directly (useful for local testing)
+# Run app only if executed directly (local testing)
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
