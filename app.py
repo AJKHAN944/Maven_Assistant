@@ -9,25 +9,26 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
+# SQLAlchemy base
 class Base(DeclarativeBase):
     pass
 
 db = SQLAlchemy(model_class=Base)
 mail = Mail()
 
-# create the app
+# Create Flask app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "maven-secret-key-2024")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# configure the database
+# Configure database
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///chatbot.db")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
 }
 
-# configure mail
+# Configure mail
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', '587'))
 app.config['MAIL_USE_TLS'] = True
@@ -35,17 +36,18 @@ app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', '')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', '')
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@mavenchatbot.com')
 
-# initialize extensions
+# Initialize extensions
 db.init_app(app)
 mail.init_app(app)
 
-# import routes
+# Import routes
 from routes import *
 
+# App context setup
 with app.app_context():
     import models
     db.create_all()
-    
+
     # Create default settings if they don't exist
     from models import Settings
     if not Settings.query.first():
@@ -64,5 +66,7 @@ with app.app_context():
         db.session.add(default_settings)
         db.session.commit()
 
+# Run app only if executed directly (useful for local testing)
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
